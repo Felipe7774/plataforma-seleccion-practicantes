@@ -104,6 +104,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Dockerfile multi-etapa para backend Java 21 y frontend React.
 - Nginx entrega la aplicación estática y redirige `/api` al backend interno.
 - Compose de producción reutilizable con PostgreSQL, persistencia de CV y configuración por variables de entorno.
+- Blueprint `render.yaml` preparado para Render, con red privada, PostgreSQL y disco persistente.
 
 ## Evidencia de verificación
 
@@ -122,7 +123,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Definir una estrategia de despliegue y configurar secretos fuera del repositorio.
-- Elegir proveedor de alojamiento y configurar secretos de producción fuera del repositorio.
+- Crear el Blueprint en una cuenta de Render y completar los secretos de producción.
 - Configurar protección de rama para exigir la comprobación de CI antes de fusionar pull requests.
 
 ### Prioridad media
