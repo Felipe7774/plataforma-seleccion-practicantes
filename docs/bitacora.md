@@ -84,6 +84,13 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Integración mediante `fetch` con la API y token guardado en `localStorage`.
 - Validación visual local de la portada y las pantallas de postulación e inicio de sesión.
 
+### Fase 7 — Calidad y trazabilidad
+
+- Historias de usuario completadas con criterios de aceptación Gherkin.
+- Matriz de casos de prueba actualizada con evidencias de backend, API y frontend.
+- Vitest y Testing Library configurados para el frontend.
+- Pruebas de componentes para postulación, autenticación y decisión no viable.
+
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
@@ -98,10 +105,8 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 ### Prioridad alta
 
-- Completar las historias de usuario en `docs/historias-de-usuario.md` con criterios de aceptación Gherkin.
-- Completar la matriz de casos de prueba en `docs/casos-de-prueba.md` y registrar evidencias por ejecución.
 - Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
-- Añadir pruebas automatizadas de componentes y flujos del frontend.
+- Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Definir una estrategia de despliegue y configurar secretos fuera del repositorio.
 
 ### Prioridad media
