@@ -84,6 +84,7 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 - PowerShell: `./scripts/verify.ps1`
 - Bash: `./scripts/verify.sh`
 - GitHub Actions ejecuta `mvn verify` en el backend y pruebas, lint y build en el frontend para cada pull request dirigido a `main`.
+- Dependabot revisa semanalmente las dependencias de Maven, npm y GitHub Actions.
 
 ## Flujo Git
 

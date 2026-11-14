@@ -97,6 +97,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Ejecución de `mvn verify` con Java 21 para el backend.
 - Ejecución de pruebas, lint y build con Node 22 para el frontend.
 - Caché de Maven y npm para acelerar las ejecuciones.
+- Dependabot configurado para actualizar dependencias de Maven, npm y GitHub Actions semanalmente.
 
 ## Evidencia de verificación
 
