@@ -5,12 +5,12 @@
 - Proyecto: Plataforma de Selección de Practicantes
 - Repositorio: `Felipe7774/plataforma-seleccion-practicantes`
 - Rama actual: `feature/product-extras`
-- Último commit: `82de4e2 feat: add product workflow extras`
+- Último hito funcional: Fase 6 — interfaz web conectada a la API
 - Fecha de corte: 14 de noviembre de 2026
 
 ## Estado general
 
-Las fases 1 a 5 están implementadas en ramas independientes y publicadas en GitHub. La rama actual contiene la funcionalidad acumulada hasta la fase 5; todavía no se ha realizado el merge de esta rama hacia `main`.
+Las fases 1 a 6 están implementadas en ramas independientes y publicadas en GitHub. La rama actual contiene la funcionalidad acumulada hasta la fase 6; todavía no se ha realizado el merge de esta rama hacia `main`.
 
 ## Trabajo completado
 
@@ -74,6 +74,16 @@ Commit: `f9fdcae feat: add OpenAPI documentation`
 
 Commit: `82de4e2 feat: add product workflow extras`
 
+### Fase 6 — Interfaz funcional
+
+- Formulario React para el registro público de postulantes.
+- Inicio de sesión del equipo de selección.
+- Panel de selección con métricas, búsqueda y filtro por estado.
+- Consulta de detalle e historial de cada postulación.
+- Acciones para marcar postulaciones como viables o no viables.
+- Integración mediante `fetch` con la API y token guardado en `localStorage`.
+- Validación visual local de la portada y las pantallas de postulación e inicio de sesión.
+
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
@@ -91,14 +101,13 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Completar las historias de usuario en `docs/historias-de-usuario.md` con criterios de aceptación Gherkin.
 - Completar la matriz de casos de prueba en `docs/casos-de-prueba.md` y registrar evidencias por ejecución.
 - Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
-- Implementar y conectar la interfaz React con login, registro, listado paginado, filtros, detalle, decisión y dashboard.
+- Añadir pruebas automatizadas de componentes y flujos del frontend.
 - Definir una estrategia de despliegue y configurar secretos fuera del repositorio.
 
 ### Prioridad media
 
 - Añadir pruebas de integración de repositorios con PostgreSQL/Testcontainers.
 - Añadir pruebas de controlador para autorización, validaciones y respuestas `ProblemDetail`.
-- Añadir paginación, filtros, historial y métricas al flujo visual del frontend.
 - Revisar accesibilidad, estados de carga, errores y diseño responsive.
 - Definir política de retención y eliminación de CV almacenados.
 
