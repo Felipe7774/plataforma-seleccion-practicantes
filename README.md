@@ -44,6 +44,7 @@ scripts/     verificación y automatización
 
 - Frontend: <http://localhost:5173>
 - Health check: <http://localhost:8080/actuator/health>
+- Swagger UI: <http://localhost:8080/swagger-ui.html>
 - Mailpit: <http://localhost:8025>
 
 ## API disponible
@@ -67,6 +68,8 @@ Las rutas de autenticación son:
 `GET /api/v1/applicants`, `GET /api/v1/applicants/{id}` y `PATCH /api/v1/applicants/{id}/status` requieren un JWT con el rol `ANALYST` o `ADMIN`. Los refresh tokens se guardan únicamente como hashes SHA-256 y se invalidan al rotarlos o cerrar sesión.
 
 Para iniciar en local define una clave `JWT_SECRET` de al menos 32 caracteres en `.env`; los valores de caducidad y límite están documentados en `.env.example`.
+
+La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su exportación versionada está en [`docs/openapi.yaml`](docs/openapi.yaml).
 
 ## Verificación
 
