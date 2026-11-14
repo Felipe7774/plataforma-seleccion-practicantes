@@ -36,5 +36,19 @@ public record Applicant(
             throw new IllegalArgumentException(field + " is required");
         }
     }
+
+    public Applicant withStatus(ApplicantStatus newStatus, Instant changedAt) {
+        return new Applicant(
+                id,
+                fullName,
+                email,
+                career,
+                semester,
+                cvKey,
+                cvOriginalName,
+                newStatus,
+                createdAt,
+                changedAt);
+    }
 }
 

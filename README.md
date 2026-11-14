@@ -46,6 +46,18 @@ scripts/     verificación y automatización
 - Health check: <http://localhost:8080/actuator/health>
 - Mailpit: <http://localhost:8025>
 
+## API disponible
+
+`POST /api/v1/applicants` es público y recibe una solicitud `multipart/form-data` con:
+
+- `fullName`
+- `email`
+- `career`
+- `semester` entre 1 y 12
+- `cv`, un archivo PDF de máximo 5 MB
+
+La API verifica el tipo de contenido y la firma `%PDF-`, guarda el archivo con un UUID y responde `409` si el correo ya existe. Las rutas de listado, detalle y cambio de estado ya existen, pero se habilitarán para analistas cuando se implemente JWT en la Fase 3.
+
 ## Verificación
 
 - PowerShell: `./scripts/verify.ps1`

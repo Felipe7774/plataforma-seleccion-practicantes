@@ -5,6 +5,7 @@ import com.practicantes.plataforma.domain.port.out.ApplicantRepository;
 import com.practicantes.plataforma.infrastructure.persistence.entity.ApplicantJpaEntity;
 import com.practicantes.plataforma.infrastructure.persistence.repository.SpringDataApplicantRepository;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
@@ -31,6 +32,13 @@ public class JpaApplicantRepositoryAdapter implements ApplicantRepository {
     @Override
     public Optional<Applicant> findById(UUID id) {
         return repository.findById(id).map(ApplicantJpaEntity::toDomain);
+    }
+
+    @Override
+    public List<Applicant> findAllByCreatedAtDescending() {
+        return repository.findAllByOrderByCreatedAtDesc().stream()
+                .map(ApplicantJpaEntity::toDomain)
+                .toList();
     }
 }
 
