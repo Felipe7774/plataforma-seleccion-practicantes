@@ -99,6 +99,12 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Caché de Maven y npm para acelerar las ejecuciones.
 - Dependabot configurado para actualizar dependencias de Maven, npm y GitHub Actions semanalmente.
 
+### Fase 9 — Preparación para despliegue
+
+- Dockerfile multi-etapa para backend Java 21 y frontend React.
+- Nginx entrega la aplicación estática y redirige `/api` al backend interno.
+- Compose de producción reutilizable con PostgreSQL, persistencia de CV y configuración por variables de entorno.
+
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
@@ -116,6 +122,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Definir una estrategia de despliegue y configurar secretos fuera del repositorio.
+- Elegir proveedor de alojamiento y configurar secretos de producción fuera del repositorio.
 - Configurar protección de rama para exigir la comprobación de CI antes de fusionar pull requests.
 
 ### Prioridad media
