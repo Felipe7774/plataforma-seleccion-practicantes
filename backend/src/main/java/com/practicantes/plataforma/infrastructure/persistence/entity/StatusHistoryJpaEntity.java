@@ -1,6 +1,7 @@
 package com.practicantes.plataforma.infrastructure.persistence.entity;
 
 import com.practicantes.plataforma.domain.model.ApplicantStatus;
+import com.practicantes.plataforma.domain.model.StatusChange;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,5 +39,24 @@ public class StatusHistoryJpaEntity {
     private Instant changedAt;
 
     protected StatusHistoryJpaEntity() {}
+
+    private StatusHistoryJpaEntity(StatusChange statusChange) {
+        this.id = statusChange.id();
+        this.applicantId = statusChange.applicantId();
+        this.previousStatus = statusChange.previousStatus();
+        this.newStatus = statusChange.newStatus();
+        this.comment = statusChange.comment();
+        this.changedBy = statusChange.changedBy();
+        this.changedAt = statusChange.changedAt();
+    }
+
+    public static StatusHistoryJpaEntity fromDomain(StatusChange statusChange) {
+        return new StatusHistoryJpaEntity(statusChange);
+    }
+
+    public StatusChange toDomain() {
+        return new StatusChange(
+                id, applicantId, previousStatus, newStatus, comment, changedBy, changedAt);
+    }
 }
 

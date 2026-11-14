@@ -6,6 +6,7 @@ import com.practicantes.plataforma.application.exception.InvalidApplicantStatusE
 import com.practicantes.plataforma.application.exception.InvalidCvException;
 import com.practicantes.plataforma.application.exception.InvalidCredentialsException;
 import com.practicantes.plataforma.application.exception.InvalidRefreshTokenException;
+import com.practicantes.plataforma.application.exception.MissingStatusCommentException;
 import com.practicantes.plataforma.application.exception.TooManyRequestsException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(InvalidApplicantStatusException.class)
     ProblemDetail handleInvalidStatus(InvalidApplicantStatusException exception) {
+        return problem(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(MissingStatusCommentException.class)
+    ProblemDetail handleMissingStatusComment(MissingStatusCommentException exception) {
         return problem(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 

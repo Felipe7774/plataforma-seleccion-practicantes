@@ -1,0 +1,493 @@
+openapi: 3.1.0
+info:
+  title: API de Selección de Practicantes
+  description: API para registrar y gestionar postulaciones de practicantes.
+  version: v1
+servers:
+- url: http://localhost:8080
+  description: Servidor local
+tags:
+- name: Autenticación
+  description: "Inicio, renovación y cierre de sesión"
+- name: Postulantes
+  description: Registro y revisión de postulantes
+- name: Dashboard
+  description: Métricas de las postulaciones
+paths:
+  /api/v1/auth/refresh:
+    post:
+      tags:
+      - Autenticación
+      summary: Renovar sesión
+      description: Rota un refresh token vigente y devuelve un nuevo par de tokens.
+      operationId: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: Sesión renovada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthenticationResponse"
+        "400":
+          description: Solicitud inválida
+        "401":
+          description: "Refresh token inválido, vencido o revocado"
+  /api/v1/auth/logout:
+    post:
+      tags:
+      - Autenticación
+      summary: Cerrar sesión
+      description: Revoca el refresh token enviado.
+      operationId: logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+        required: true
+      responses:
+        "204":
+          description: Sesión cerrada
+        "400":
+          description: Solicitud inválida
+        "401":
+          description: "JWT ausente, vencido o inválido"
+      security:
+      - bearerAuth: []
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Autenticación
+      summary: Iniciar sesión
+      description: Devuelve un access token JWT y un refresh token de un solo uso.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: Autenticación correcta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthenticationResponse"
+              example:
+                accessToken: eyJhbGciOiJIUzI1NiJ9...
+                accessTokenExpiresAt: 2026-11-14T17:15:00Z
+                refreshToken: token-de-renovacion
+        "400":
+          description: Solicitud inválida
+        "401":
+          description: Usuario o contraseña incorrectos
+        "429":
+          description: Límite de intentos por minuto superado
+  /api/v1/applicants:
+    get:
+      tags:
+      - Postulantes
+      summary: Listar postulantes
+      description: Devuelve los postulantes registrados.
+      operationId: list
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+      - name: career
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: Listado paginado de postulantes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicantPageResponse"
+        "401":
+          description: "JWT ausente, vencido o inválido"
+        "403":
+          description: El usuario no tiene un rol autorizado
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Postulantes
+      summary: Registrar un postulante
+      description: Ruta pública. Recibe los datos del postulante y su hoja de vida
+        en PDF de máximo 5 MB.
+      operationId: register
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/RegisterApplicantRequest"
+      responses:
+        "201":
+          description: Postulante registrado con estado PENDING
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicantResponse"
+              example:
+                id: 9b7fb35f-4979-4c72-b345-0fe6b6f7c801
+                fullName: Laura Gómez
+                email: laura@correo.com
+                career: Ingeniería de Sistemas
+                semester: 8
+                status: PENDING
+                createdAt: 2026-11-14T17:00:00Z
+        "400":
+          description: Datos o archivo PDF inválidos
+          content:
+            application/problem+json:
+              example:
+                title: Bad Request
+                status: 400
+                detail: La hoja de vida debe ser un PDF
+        "409":
+          description: El correo ya está registrado
+        "413":
+          description: El archivo supera el tamaño permitido
+        "429":
+          description: Límite de registros por minuto superado
+  /api/v1/applicants/{applicantId}/status:
+    patch:
+      tags:
+      - Postulantes
+      summary: Cambiar el estado de un postulante
+      description: Actualiza el estado a VIABLE o NOT_VIABLE.
+      operationId: changeStatus
+      parameters:
+      - name: applicantId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeApplicantStatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Estado actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicantDetailResponse"
+        "400":
+          description: Estado inválido
+        "401":
+          description: "JWT ausente, vencido o inválido"
+        "403":
+          description: El usuario no tiene un rol autorizado
+        "404":
+          description: Postulante no encontrado
+      security:
+      - bearerAuth: []
+  /api/v1/dashboard/metrics:
+    get:
+      tags:
+      - Dashboard
+      summary: Consultar métricas
+      description: Devuelve totales por estado y carrera.
+      operationId: metrics
+      responses:
+        "200":
+          description: Métricas disponibles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardMetricsResponse"
+        "401":
+          description: "JWT ausente, vencido o inválido"
+        "403":
+          description: El usuario no tiene un rol autorizado
+      security:
+      - bearerAuth: []
+  /api/v1/applicants/{applicantId}:
+    get:
+      tags:
+      - Postulantes
+      summary: Consultar un postulante
+      description: Obtiene el detalle de un postulante por su identificador.
+      operationId: get
+      parameters:
+      - name: applicantId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Detalle del postulante
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicantDetailResponse"
+        "401":
+          description: "JWT ausente, vencido o inválido"
+        "403":
+          description: El usuario no tiene un rol autorizado
+        "404":
+          description: Postulante no encontrado
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+      required:
+      - refreshToken
+    AuthenticationResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        accessTokenExpiresAt:
+          type: string
+          format: date-time
+        refreshToken:
+          type: string
+    LogoutRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+      required:
+      - refreshToken
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - password
+      - username
+    RegisterApplicantRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+          minLength: 1
+        career:
+          type: string
+          minLength: 1
+        semester:
+          type: integer
+          format: int32
+          maximum: 12
+          minimum: 1
+        cv:
+          type: string
+          format: binary
+      required:
+      - career
+      - email
+      - fullName
+    ApplicantResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+        career:
+          type: string
+        semester:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        createdAt:
+          type: string
+          format: date-time
+    ChangeApplicantStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        comment:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - status
+    ApplicantDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+        career:
+          type: string
+        semester:
+          type: integer
+          format: int32
+        cvOriginalName:
+          type: string
+        status:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusChangeResponse"
+    StatusChangeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        previousStatus:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        newStatus:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        comment:
+          type: string
+        changedBy:
+          type: string
+        changedAt:
+          type: string
+          format: date-time
+    CareerMetricResponse:
+      type: object
+      properties:
+        career:
+          type: string
+        count:
+          type: integer
+          format: int64
+    DashboardMetricsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusMetricResponse"
+        byCareer:
+          type: array
+          items:
+            $ref: "#/components/schemas/CareerMetricResponse"
+    StatusMetricResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - PENDING
+          - VIABLE
+          - NOT_VIABLE
+        count:
+          type: integer
+          format: int64
+    ApplicantPageResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicantResponse"
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,9 +1,10 @@
 package com.practicantes.plataforma.infrastructure.web.applicant;
 
-import com.practicantes.plataforma.domain.model.Applicant;
+import com.practicantes.plataforma.domain.model.ApplicantDetails;
 import com.practicantes.plataforma.domain.model.ApplicantStatus;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 
 public record ApplicantDetailResponse(
         UUID id,
@@ -14,9 +15,11 @@ public record ApplicantDetailResponse(
         String cvOriginalName,
         ApplicantStatus status,
         Instant createdAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        List<StatusChangeResponse> history) {
 
-    static ApplicantDetailResponse from(Applicant applicant) {
+    static ApplicantDetailResponse from(ApplicantDetails details) {
+        var applicant = details.applicant();
         return new ApplicantDetailResponse(
                 applicant.id(),
                 applicant.fullName(),
@@ -26,7 +29,8 @@ public record ApplicantDetailResponse(
                 applicant.cvOriginalName(),
                 applicant.status(),
                 applicant.createdAt(),
-                applicant.updatedAt());
+                applicant.updatedAt(),
+                details.history().stream().map(StatusChangeResponse::from).toList());
     }
 }
 
