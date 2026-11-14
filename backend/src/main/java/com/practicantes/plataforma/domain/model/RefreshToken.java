@@ -9,5 +9,10 @@ public record RefreshToken(
         String tokenHash,
         Instant expiresAt,
         boolean revoked,
-        Instant createdAt) {}
+        Instant createdAt) {
+
+    public RefreshToken revoke() {
+        return new RefreshToken(id, userId, tokenHash, expiresAt, true, createdAt);
+    }
+}
 

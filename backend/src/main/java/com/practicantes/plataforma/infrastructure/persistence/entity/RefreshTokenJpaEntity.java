@@ -1,5 +1,6 @@
 package com.practicantes.plataforma.infrastructure.persistence.entity;
 
+import com.practicantes.plataforma.domain.model.RefreshToken;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -30,5 +31,22 @@ public class RefreshTokenJpaEntity {
     private Instant createdAt;
 
     protected RefreshTokenJpaEntity() {}
+
+    private RefreshTokenJpaEntity(RefreshToken refreshToken) {
+        this.id = refreshToken.id();
+        this.userId = refreshToken.userId();
+        this.tokenHash = refreshToken.tokenHash();
+        this.expiresAt = refreshToken.expiresAt();
+        this.revoked = refreshToken.revoked();
+        this.createdAt = refreshToken.createdAt();
+    }
+
+    public static RefreshTokenJpaEntity fromDomain(RefreshToken refreshToken) {
+        return new RefreshTokenJpaEntity(refreshToken);
+    }
+
+    public RefreshToken toDomain() {
+        return new RefreshToken(id, userId, tokenHash, expiresAt, revoked, createdAt);
+    }
 }
 

@@ -5,6 +5,7 @@ import com.practicantes.plataforma.domain.port.out.UserRepository;
 import com.practicantes.plataforma.infrastructure.persistence.entity.UserJpaEntity;
 import com.practicantes.plataforma.infrastructure.persistence.repository.SpringDataUserRepository;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -30,6 +31,11 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         return repository.findByUsernameIgnoreCase(username).map(UserJpaEntity::toDomain);
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return repository.findById(id).map(UserJpaEntity::toDomain);
     }
 }
 

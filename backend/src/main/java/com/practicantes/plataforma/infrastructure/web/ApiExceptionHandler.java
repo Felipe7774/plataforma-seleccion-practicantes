@@ -4,6 +4,9 @@ import com.practicantes.plataforma.application.exception.DuplicateApplicantEmail
 import com.practicantes.plataforma.application.exception.ApplicantNotFoundException;
 import com.practicantes.plataforma.application.exception.InvalidApplicantStatusException;
 import com.practicantes.plataforma.application.exception.InvalidCvException;
+import com.practicantes.plataforma.application.exception.InvalidCredentialsException;
+import com.practicantes.plataforma.application.exception.InvalidRefreshTokenException;
+import com.practicantes.plataforma.application.exception.TooManyRequestsException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,21 @@ public class ApiExceptionHandler {
     @ExceptionHandler(InvalidApplicantStatusException.class)
     ProblemDetail handleInvalidStatus(InvalidApplicantStatusException exception) {
         return problem(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    ProblemDetail handleInvalidCredentials(InvalidCredentialsException exception) {
+        return problem(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    ProblemDetail handleInvalidRefreshToken(InvalidRefreshTokenException exception) {
+        return problem(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    ProblemDetail handleTooManyRequests(TooManyRequestsException exception) {
+        return problem(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
