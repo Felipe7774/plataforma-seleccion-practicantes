@@ -4,7 +4,7 @@ Aplicación para registrar postulaciones de practicantes y apoyar su revisión p
 
 ## Estado del proyecto
 
-Fase 6 completada: interfaz React para postulación, acceso interno y panel de selección conectado a la API.
+Fase 8 completada: interfaz funcional, pruebas automatizadas y validación continua en GitHub Actions.
 
 ## Tecnologías
 
@@ -83,6 +83,7 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 
 - PowerShell: `./scripts/verify.ps1`
 - Bash: `./scripts/verify.sh`
+- GitHub Actions ejecuta `mvn verify` en el backend y pruebas, lint y build en el frontend para cada pull request dirigido a `main`.
 
 ## Flujo Git
 

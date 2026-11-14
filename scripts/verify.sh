@@ -8,6 +8,7 @@ cd "$ROOT_DIR/backend"
 
 cd "$ROOT_DIR/frontend"
 npm ci
+npm test
 npm run lint
 npm run build
 
