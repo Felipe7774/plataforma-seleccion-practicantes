@@ -4,7 +4,7 @@ Aplicación para registrar postulaciones de practicantes y apoyar su revisión p
 
 ## Estado del proyecto
 
-Fase 0 en curso: estructura inicial, servicios locales y verificación del entorno.
+Fase 3 completada: persistencia, registro público de postulantes y seguridad basada en JWT.
 
 ## Tecnologías
 
@@ -56,7 +56,17 @@ scripts/     verificación y automatización
 - `semester` entre 1 y 12
 - `cv`, un archivo PDF de máximo 5 MB
 
-La API verifica el tipo de contenido y la firma `%PDF-`, guarda el archivo con un UUID y responde `409` si el correo ya existe. Las rutas de listado, detalle y cambio de estado ya existen, pero se habilitarán para analistas cuando se implemente JWT en la Fase 3.
+La API verifica el tipo de contenido y la firma `%PDF-`, guarda el archivo con un UUID y responde `409` si el correo ya existe. El registro y el inicio de sesión se limitan a cinco intentos por minuto y por IP de forma configurable.
+
+Las rutas de autenticación son:
+
+- `POST /api/v1/auth/login`: recibe `username` y `password`; responde access token JWT y refresh token.
+- `POST /api/v1/auth/refresh`: rota un refresh token válido y responde un nuevo par de tokens.
+- `POST /api/v1/auth/logout`: requiere `Authorization: Bearer <accessToken>` y revoca el refresh token enviado.
+
+`GET /api/v1/applicants`, `GET /api/v1/applicants/{id}` y `PATCH /api/v1/applicants/{id}/status` requieren un JWT con el rol `ANALYST` o `ADMIN`. Los refresh tokens se guardan únicamente como hashes SHA-256 y se invalidan al rotarlos o cerrar sesión.
+
+Para iniciar en local define una clave `JWT_SECRET` de al menos 32 caracteres en `.env`; los valores de caducidad y límite están documentados en `.env.example`.
 
 ## Verificación
 
