@@ -49,6 +49,16 @@ scripts/     verificación y automatización
 - Swagger UI: <http://localhost:8080/swagger-ui.html>
 - Mailpit: <http://localhost:8025>
 
+## Ejecución con Docker
+
+Para ejecutar la aplicación completa en contenedores, define como mínimo `JWT_SECRET` y `APP_ADMIN_PASSWORD` en `.env` y ejecuta:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.production.yml up --build
+```
+
+La interfaz queda disponible en `http://localhost` (o el puerto definido en `FRONTEND_PORT`), el proxy interno dirige `/api` al backend y `http://localhost/health` expone el health check para monitoreo. En un entorno real configura `MAIL_HOST`, `MAIL_PORT`, `MAIL_FROM`, una contraseña de base de datos segura y un origen HTTPS en `APP_CORS_ALLOWED_ORIGIN`.
+
 ## API disponible
 
 `POST /api/v1/applicants` es público y recibe una solicitud `multipart/form-data` con:
