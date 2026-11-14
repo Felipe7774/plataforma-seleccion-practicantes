@@ -98,7 +98,9 @@ function Dashboard({ token, onLogin }: { token: string; onLogin: () => void }) {
     catch (cause) { setError(cause instanceof Error ? cause.message : 'No fue posible cargar el panel.') }
     finally { setLoading(false) }
   }, [onLogin, token])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    queueMicrotask(() => { void load() })
+  }, [load])
   const choose = async (applicant: Applicant) => { try { setSelected(await getApplicant(token, applicant.id)) } catch (cause) { setError(cause instanceof Error ? cause.message : 'No fue posible cargar el detalle.') } }
   const decide = async (nextStatus: ApplicantStatus, comment: string) => { if (!selected) return; try { setSelected(await changeStatus(token, selected.id, nextStatus, comment)); await load(query, status) } catch (cause) { setError(cause instanceof Error ? cause.message : 'No fue posible guardar la decisión.') } }
   return <section className="dashboard"><div className="dashboard-title"><div><p className="eyebrow">Panel interno</p><h1>Selección de practicantes</h1></div><button className="secondary" onClick={() => void load(query, status)}>Actualizar</button></div>{error && <p className="notice error">{error}</p>}
