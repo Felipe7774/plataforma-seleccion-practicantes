@@ -4,7 +4,7 @@ Aplicación para registrar postulaciones de practicantes y apoyar su revisión p
 
 ## Estado del proyecto
 
-Fase 3 completada: persistencia, registro público de postulantes y seguridad basada en JWT.
+Fase 5 completada: filtros y paginación, trazabilidad de decisiones, métricas y notificaciones por correo.
 
 ## Tecnologías
 
@@ -67,7 +67,11 @@ Las rutas de autenticación son:
 
 `GET /api/v1/applicants`, `GET /api/v1/applicants/{id}` y `PATCH /api/v1/applicants/{id}/status` requieren un JWT con el rol `ANALYST` o `ADMIN`. Los refresh tokens se guardan únicamente como hashes SHA-256 y se invalidan al rotarlos o cerrar sesión.
 
-Para iniciar en local define una clave `JWT_SECRET` de al menos 32 caracteres en `.env`; los valores de caducidad y límite están documentados en `.env.example`.
+El listado admite `status`, `career`, `q`, `page` y `size`; devuelve elementos y metadatos de paginación. El detalle incluye el historial de decisiones. Para asignar `NOT_VIABLE` se debe enviar un `comment`; cada cambio queda registrado y dispara un correo asíncrono sin afectar la decisión si Mailpit/SMTP no está disponible.
+
+`GET /api/v1/dashboard/metrics` devuelve el total de postulaciones y sus agrupaciones por estado y carrera para los roles `ANALYST` y `ADMIN`.
+
+Para iniciar en local define una clave `JWT_SECRET` de al menos 32 caracteres en `.env`; los valores de caducidad, límite y remitente de correo están documentados en `.env.example`.
 
 La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su exportación versionada está en [`docs/openapi.yaml`](docs/openapi.yaml).
 

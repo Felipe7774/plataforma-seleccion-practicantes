@@ -2,14 +2,15 @@ package com.practicantes.plataforma.infrastructure.web.applicant;
 
 import com.practicantes.plataforma.application.command.RegisterApplicantCommand;
 import com.practicantes.plataforma.application.service.ChangeApplicantStatusService;
-import com.practicantes.plataforma.application.service.GetApplicantService;
+import com.practicantes.plataforma.application.service.GetApplicantDetailsService;
 import com.practicantes.plataforma.application.service.ListApplicantsService;
 import com.practicantes.plataforma.application.service.RegisterApplicantService;
 import com.practicantes.plataforma.domain.model.Applicant;
+import com.practicantes.plataforma.domain.model.ApplicantSearchCriteria;
+import com.practicantes.plataforma.domain.model.ApplicantStatus;
 import com.practicantes.plataforma.domain.model.CvFile;
 import com.practicantes.plataforma.infrastructure.security.RateLimitService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,6 +26,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,19 +46,19 @@ public class ApplicantController {
 
     private final RegisterApplicantService registerApplicantService;
     private final ListApplicantsService listApplicantsService;
-    private final GetApplicantService getApplicantService;
+    private final GetApplicantDetailsService getApplicantDetailsService;
     private final ChangeApplicantStatusService changeApplicantStatusService;
     private final RateLimitService rateLimitService;
 
     public ApplicantController(
             RegisterApplicantService registerApplicantService,
             ListApplicantsService listApplicantsService,
-            GetApplicantService getApplicantService,
+            GetApplicantDetailsService getApplicantDetailsService,
             ChangeApplicantStatusService changeApplicantStatusService,
             RateLimitService rateLimitService) {
         this.registerApplicantService = registerApplicantService;
         this.listApplicantsService = listApplicantsService;
-        this.getApplicantService = getApplicantService;
+        this.getApplicantDetailsService = getApplicantDetailsService;
         this.changeApplicantStatusService = changeApplicantStatusService;
         this.rateLimitService = rateLimitService;
     }
@@ -113,13 +117,19 @@ public class ApplicantController {
     @ApiResponses({
         @ApiResponse(
                 responseCode = "200",
-                description = "Listado de postulantes",
-                content = @Content(array = @ArraySchema(schema = @Schema(implementation = ApplicantResponse.class)))),
+                description = "Listado paginado de postulantes",
+                content = @Content(schema = @Schema(implementation = ApplicantPageResponse.class))),
         @ApiResponse(responseCode = "401", description = "JWT ausente, vencido o inválido", content = @Content),
         @ApiResponse(responseCode = "403", description = "El usuario no tiene un rol autorizado", content = @Content)
     })
-    public java.util.List<ApplicantResponse> list() {
-        return listApplicantsService.list().stream().map(ApplicantResponse::from).toList();
+    public ApplicantPageResponse list(
+            @RequestParam(required = false) ApplicantStatus status,
+            @RequestParam(required = false) String career,
+            @RequestParam(name = "q", required = false) String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApplicantPageResponse.from(listApplicantsService.list(
+                new ApplicantSearchCriteria(status, career, query, page, size)));
     }
 
     @GetMapping(value = "/{applicantId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -133,7 +143,7 @@ public class ApplicantController {
         @ApiResponse(responseCode = "404", description = "Postulante no encontrado", content = @Content)
     })
     public ApplicantDetailResponse get(@PathVariable java.util.UUID applicantId) {
-        return ApplicantDetailResponse.from(getApplicantService.get(applicantId));
+        return ApplicantDetailResponse.from(getApplicantDetailsService.get(applicantId));
     }
 
     @PatchMapping(value = "/{applicantId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -149,9 +159,11 @@ public class ApplicantController {
     })
     public ApplicantDetailResponse changeStatus(
             @PathVariable java.util.UUID applicantId,
-            @Valid @RequestBody ChangeApplicantStatusRequest request) {
-        return ApplicantDetailResponse.from(
-                changeApplicantStatusService.change(applicantId, request.status()));
+            @Valid @RequestBody ChangeApplicantStatusRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        changeApplicantStatusService.change(
+                applicantId, request.status(), request.comment(), jwt.getSubject());
+        return ApplicantDetailResponse.from(getApplicantDetailsService.get(applicantId));
     }
 }
 
