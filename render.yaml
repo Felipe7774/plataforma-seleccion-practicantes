@@ -1,0 +1,68 @@
+services:
+  - type: pserv
+    name: practicantes-api
+    runtime: docker
+    region: ohio
+    plan: 0.5c-512mb
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeployTrigger: checksPass
+    healthCheckPath: /actuator/health
+    disk:
+      name: applicant-cvs
+      mountPath: /app/uploads
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: practicantes-db
+          property: connectionString
+      - key: APP_STORAGE_LOCAL_PATH
+        value: /app/uploads
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_ADMIN_USERNAME
+        value: admin
+      - key: APP_ADMIN_PASSWORD
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_SMTP_AUTH
+        value: "true"
+      - key: MAIL_STARTTLS
+        value: "true"
+
+  - type: web
+    name: practicantes-web
+    runtime: docker
+    region: ohio
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PORT
+        value: "80"
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: pserv
+          name: practicantes-api
+          property: hostport
+
+databases:
+  - name: practicantes-db
+    region: ohio
+    plan: free
+    postgresMajorVersion: "17"
+    databaseName: practicantes
+    user: practicantes

@@ -59,6 +59,10 @@ docker compose -f docker-compose.yml -f docker-compose.production.yml up --build
 
 La interfaz queda disponible en `http://localhost` (o el puerto definido en `FRONTEND_PORT`), el proxy interno dirige `/api` al backend y `http://localhost/health` expone el health check para monitoreo. En un entorno real configura `MAIL_HOST`, `MAIL_PORT`, `MAIL_FROM`, una contraseña de base de datos segura y un origen HTTPS en `APP_CORS_ALLOWED_ORIGIN`.
 
+## Despliegue en Render
+
+El repositorio incluye [`render.yaml`](render.yaml), un Blueprint que crea una API privada con disco persistente para CV, una web pública, una base de datos PostgreSQL y despliegue automático tras una CI exitosa. Para aplicarlo, crea un Blueprint en Render desde el repositorio y completa los secretos solicitados: `APP_ADMIN_PASSWORD`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD` y `MAIL_FROM`. La API usa la red privada de Render y la web pública entrega la aplicación con HTTPS.
+
 ## API disponible
 
 `POST /api/v1/applicants` es público y recibe una solicitud `multipart/form-data` con:

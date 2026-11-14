@@ -13,4 +13,4 @@ COPY --from=build /workspace/target/backend-0.0.1-SNAPSHOT.jar app.jar
 
 USER appuser
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["sh", "-c", "if [ -n \"$DATABASE_URL\" ] && [ \"${DATABASE_URL#jdbc:}\" = \"$DATABASE_URL\" ]; then export SPRING_DATASOURCE_URL=\"jdbc:$DATABASE_URL\"; fi; exec java -jar /app/app.jar"]
