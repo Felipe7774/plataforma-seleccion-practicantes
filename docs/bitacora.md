@@ -91,6 +91,14 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Vitest y Testing Library configurados para el frontend.
 - Pruebas de componentes para postulación, autenticación y decisión no viable.
 
+### Fase 8 — Integración continua
+
+- Flujo de GitHub Actions en `.github/workflows/ci.yml`.
+- Ejecución de `mvn verify` con Java 21 para el backend.
+- Ejecución de pruebas, lint y build con Node 22 para el frontend.
+- Caché de Maven y npm para acelerar las ejecuciones.
+- Dependabot configurado para actualizar dependencias de Maven, npm y GitHub Actions semanalmente.
+
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
@@ -108,6 +116,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Definir una estrategia de despliegue y configurar secretos fuera del repositorio.
+- Configurar protección de rama para exigir la comprobación de CI antes de fusionar pull requests.
 
 ### Prioridad media
 
@@ -120,7 +129,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 - Añadir observabilidad: logs estructurados, métricas técnicas y trazas.
 - Añadir auditoría de acciones administrativas.
-- Preparar CI/CD con lint, tests, build y análisis de seguridad.
+- Preparar despliegue continuo y análisis de seguridad de dependencias.
 - Revisar configuración de producción: CORS, límites de subida, SMTP, almacenamiento y backups.
 
 ## Próximo paso recomendado

@@ -11,6 +11,7 @@ finally {
 Push-Location "$PSScriptRoot\..\frontend"
 try {
     npm ci
+    npm test
     npm run lint
     npm run build
 }
