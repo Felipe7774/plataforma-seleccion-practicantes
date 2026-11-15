@@ -5,6 +5,7 @@
 | CP-01 | HU-01 | Registro exitoso de postulante con PDF válido | Servicio/API | Aprobado | Suite backend |
 | CP-02 | HU-01 | Rechazo de correo duplicado | Servicio/API | Aprobado | Suite backend |
 | CP-03 | HU-01 | Rechazo de archivo que no es PDF o supera 5 MB | Servicio/API | Aprobado | Suite backend |
+| CP-04 | HU-01 | El endpoint público de postulación no exige JWT | Integración web | Aprobado | `BackendApplicationTests` |
 | CP-10 | HU-02 | Login con credenciales válidas | Servicio | Aprobado | `AuthenticationServiceTest` |
 | CP-11 | HU-02 | Rechazo de contraseña inválida | Servicio | Aprobado | `AuthenticationServiceTest` |
 | CP-21 | HU-03 | Paginación, filtros y búsqueda | Servicio | Aprobado | `ListApplicantsServiceTest` |
@@ -20,8 +21,8 @@
 
 ## Ejecución más reciente
 
-- Fecha: 14 de noviembre de 2026.
-- Backend: 16 pruebas aprobadas con `mvnw.cmd verify`.
+- Fecha: 15 de noviembre de 2026.
+- Backend: 17 pruebas aprobadas con `mvnw.cmd verify`.
 - Frontend: 3 pruebas aprobadas con `npm test`.
 - Calidad estática: `npm run lint` y `npm run build` ejecutados correctamente.
 
