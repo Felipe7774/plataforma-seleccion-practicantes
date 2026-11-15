@@ -1,4 +1,11 @@
 services:
+  uploads-init:
+    image: alpine:3.21
+    command: ["sh", "-c", "chown -R 10001:10001 /app/uploads"]
+    volumes:
+      - uploads_data:/app/uploads
+    restart: "no"
+
   backend:
     build:
       context: ./backend
@@ -18,6 +25,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      uploads-init:
+        condition: service_completed_successfully
     volumes:
       - uploads_data:/app/uploads
     expose:
