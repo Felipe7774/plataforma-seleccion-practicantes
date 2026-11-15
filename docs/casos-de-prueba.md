@@ -20,6 +20,7 @@
 | CP-FE-01 | HU-01 | Navegación desde portada al formulario público | Componente | Aprobado | `App.test.tsx` |
 | CP-FE-02 | HU-02 | Login redirige al panel interno | Componente | Aprobado | `App.test.tsx` |
 | CP-FE-03 | HU-04 | Decisión NOT_VIABLE envía comentario al API | Componente | Aprobado | `App.test.tsx` |
+| CP-FE-04 | HU-03 | El detalle muestra la acción para descargar el CV | Componente | Aprobado | `App.test.tsx` |
 
 ## Ejecución más reciente
 
