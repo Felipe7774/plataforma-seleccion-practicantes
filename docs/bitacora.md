@@ -110,11 +110,12 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Se corrigió la ruta de API del frontend para evitar el prefijo duplicado `/api/api/v1`.
 - El registro público se verifica sin JWT y el almacenamiento de CV inicializa permisos para el usuario no privilegiado del backend.
 - Verificación en AWS: inicio de sesión administrativo, registro de postulante con PDF y visualización de la postulación en el panel.
+- Se centralizó el manejo de errores HTTP con respuestas `ProblemDetail` para validaciones, formatos no soportados y errores inesperados.
 
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
-- Pruebas backend: 17 ejecutadas, 0 fallos.
+- Pruebas backend: 18 ejecutadas, 0 fallos.
 - Frontend: `npm run lint` correcto.
 - Frontend: `npm run build` correcto.
 - Prueba integrada local: login, filtro paginado, rechazo de decisión sin comentario, cambio de estado, historial y métricas.

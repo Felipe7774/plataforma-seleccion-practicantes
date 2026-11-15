@@ -166,6 +166,7 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 | CP-02 | HU-01 | Rechazo de correo duplicado | Servicio/API | Suite backend |
 | CP-03 | HU-01 | Rechazo de archivo inválido o mayor de 5 MB | Servicio/API | Suite backend |
 | CP-04 | HU-01 | Endpoint público sin JWT | Integración web | `BackendApplicationTests` |
+| CP-05 | HU-02 | JSON mal formado devuelve `ProblemDetail` | Integración web | `BackendApplicationTests` |
 | CP-10 | HU-02 | Login válido | Servicio | `AuthenticationServiceTest` |
 | CP-11 | HU-02 | Contraseña inválida | Servicio | `AuthenticationServiceTest` |
 | CP-21 | HU-03 | Paginación, filtros y búsqueda | Servicio | `ListApplicantsServiceTest` |
