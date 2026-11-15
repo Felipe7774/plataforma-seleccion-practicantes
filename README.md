@@ -59,11 +59,21 @@ docker compose -f docker-compose.yml -f docker-compose.production.yml up --build
 
 La interfaz queda disponible en `http://localhost` (o el puerto definido en `FRONTEND_PORT`), el proxy interno dirige `/api` al backend y `http://localhost/health` expone el health check para monitoreo. En un entorno real configura `MAIL_HOST`, `MAIL_PORT`, `MAIL_FROM`, una contraseña de base de datos segura y un origen HTTPS en `APP_CORS_ALLOWED_ORIGIN`.
 
-## Despliegue gratuito en Render
+## Despliegue en AWS
 
-El repositorio incluye [`render.yaml`](render.yaml), un Blueprint de demostración sin tarjeta: crea dos servicios web públicos y una base de datos PostgreSQL gratuita. Solo solicita `APP_ADMIN_PASSWORD`; el secreto JWT se genera en Render y el correo queda desactivado (`APP_MAIL_ENABLED=false`) porque los servicios gratuitos no pueden usar SMTP. La web usa el proxy HTTPS hacia la API pública.
+La demostración se publica en una instancia EC2 con Amazon Linux 2023. Docker Compose ejecuta el frontend Nginx, el backend Spring Boot, PostgreSQL y Mailpit en la misma instancia. Nginx expone el puerto HTTP 80 y redirige `/api` al backend interno; PostgreSQL no se expone a Internet.
 
-Los CV se guardan de forma temporal en `/tmp/uploads`: se pierden al reiniciar, suspender o volver a desplegar el backend. La base de datos gratuita tiene 1 GB y caduca a los 30 días. Esta configuración sirve para evaluación o portafolio; para producción se debe añadir almacenamiento de archivos persistente/externo y un plan de base de datos sin caducidad.
+Las variables sensibles (`POSTGRES_PASSWORD`, `APP_ADMIN_PASSWORD` y `JWT_SECRET`) se configuran únicamente en el archivo `.env` de la instancia y no se suben al repositorio. Los volúmenes de Docker conservan la base de datos y los CV mientras se mantenga el disco EBS de la instancia.
+
+Para actualizar una instancia ya preparada:
+
+```bash
+cd /opt/plataforma-seleccion-practicantes
+git pull origin main
+docker compose -f docker-compose.yml -f docker-compose.production.yml up -d --build
+```
+
+Para una presentación basta con mantener la instancia encendida. Después, detenerla desde EC2 evita consumir créditos. Para un entorno productivo se recomienda añadir dominio, HTTPS, copias de seguridad y una base de datos administrada.
 
 ## API disponible
 
