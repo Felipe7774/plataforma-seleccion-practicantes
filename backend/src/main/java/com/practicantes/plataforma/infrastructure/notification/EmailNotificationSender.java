@@ -22,7 +22,7 @@ public class EmailNotificationSender implements NotificationSender {
     public EmailNotificationSender(
             JavaMailSender mailSender,
             @Value("${app.mail.from}") String from,
-            @Value("${app.mail.enabled:true}") boolean enabled) {
+            @Value("${app.mail.enabled:false}") boolean enabled) {
         this.mailSender = mailSender;
         this.from = from;
         this.enabled = enabled;
