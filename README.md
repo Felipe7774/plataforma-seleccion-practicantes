@@ -103,7 +103,7 @@ La interfaz React incorpora el formulario público de postulación, el inicio de
 
 Para iniciar en local define una clave `JWT_SECRET` de al menos 32 caracteres en `.env`; los valores de caducidad, límite y remitente de correo están documentados en `.env.example`.
 
-La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su exportación versionada está en [`docs/openapi.yaml`](docs/openapi.yaml). El avance, las decisiones y los pendientes se mantienen en la [`bitácora del proyecto`](docs/bitacora.md).
+La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su exportación versionada está en [`docs/openapi.yaml`](docs/openapi.yaml). El avance, las decisiones y los pendientes se mantienen en la [`bitácora del proyecto`](docs/bitacora.md); el recorrido de demostración está en el [`guion de presentación`](docs/guion-presentacion.md).
 
 ## Verificación
 

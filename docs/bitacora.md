@@ -4,13 +4,13 @@
 
 - Proyecto: Plataforma de Selección de Practicantes
 - Repositorio: `Felipe7774/plataforma-seleccion-practicantes`
-- Rama actual: `feature/product-extras`
-- Último hito funcional: Fase 6 — interfaz web conectada a la API
-- Fecha de corte: 14 de noviembre de 2026
+- Rama actual: `codex/fix-public-application-endpoint`
+- Último hito funcional: aplicación desplegada y verificada en AWS EC2
+- Fecha de corte: 15 de noviembre de 2026
 
 ## Estado general
 
-Las fases 1 a 6 están implementadas en ramas independientes y publicadas en GitHub. La rama actual contiene la funcionalidad acumulada hasta la fase 6; todavía no se ha realizado el merge de esta rama hacia `main`.
+Las fases 1 a 9 están implementadas y publicadas en GitHub. La aplicación está desplegada en AWS EC2 y funciona desde su IP pública. Los últimos ajustes de producción siguen pendientes de fusionarse a `main` mediante el Pull Request de la rama actual.
 
 ## Trabajo completado
 
@@ -107,11 +107,14 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Despliegue en AWS EC2 con Amazon Linux 2023, Docker Compose, Nginx, Spring Boot y PostgreSQL en contenedores.
 - El puerto HTTP 80 queda público para la demostración; PostgreSQL se mantiene interno.
 - Las credenciales y secretos de producción se conservan en el `.env` de la instancia, fuera de Git.
+- Se corrigió la ruta de API del frontend para evitar el prefijo duplicado `/api/api/v1`.
+- El registro público se verifica sin JWT y el almacenamiento de CV inicializa permisos para el usuario no privilegiado del backend.
+- Verificación en AWS: inicio de sesión administrativo, registro de postulante con PDF y visualización de la postulación en el panel.
 
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
-- Pruebas backend: 16 ejecutadas, 0 fallos.
+- Pruebas backend: 17 ejecutadas, 0 fallos.
 - Frontend: `npm run lint` correcto.
 - Frontend: `npm run build` correcto.
 - Prueba integrada local: login, filtro paginado, rechazo de decisión sin comentario, cambio de estado, historial y métricas.
@@ -122,7 +125,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 ### Prioridad alta
 
-- Revisar y aprobar el Pull Request de `feature/product-extras` antes del merge a `main`.
+- Revisar y aprobar el Pull Request de `codex/fix-public-application-endpoint` antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Documentar la actualización de la instancia AWS y conservar los secretos fuera del repositorio.
 - Añadir dominio, HTTPS y respaldos antes de considerar un uso productivo.
@@ -144,5 +147,5 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 ## Próximo paso recomendado
 
-La siguiente actividad recomendada es la fase de frontend funcional: conectar la aplicación React con la API autenticada y construir el flujo de selección sobre los endpoints ya disponibles. En paralelo, conviene completar historias y casos de prueba para que cada incremento quede trazable.
+La siguiente actividad recomendada es fusionar el Pull Request de producción a `main`, ejecutar la CI y hacer un ensayo de presentación: registrar un postulante, ingresar como administrador, consultar el detalle y cambiar su estado. Después de la presentación, se deben detener o revisar los recursos de AWS para controlar el consumo.
 
