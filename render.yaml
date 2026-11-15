@@ -1,16 +1,13 @@
 services:
-  - type: pserv
-    name: practicantes-api
+  - type: web
+    name: practicantes-api-felipe7774
     runtime: docker
     region: ohio
-    plan: 0.5c-512mb
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     autoDeployTrigger: checksPass
-    disk:
-      name: applicant-cvs
-      mountPath: /app/uploads
-      sizeGB: 1
+    healthCheckPath: /actuator/health
     envVars:
       - key: PORT
         value: "8080"
@@ -19,30 +16,20 @@ services:
           name: practicantes-db
           property: connectionString
       - key: APP_STORAGE_LOCAL_PATH
-        value: /app/uploads
+        value: /tmp/uploads
+      - key: APP_CORS_ALLOWED_ORIGIN
+        value: https://practicantes-web-felipe7774.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: APP_ADMIN_USERNAME
         value: admin
       - key: APP_ADMIN_PASSWORD
         sync: false
-      - key: MAIL_HOST
-        sync: false
-      - key: MAIL_PORT
-        value: "587"
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
-        sync: false
-      - key: MAIL_FROM
-        sync: false
-      - key: MAIL_SMTP_AUTH
-        value: "true"
-      - key: MAIL_STARTTLS
-        value: "true"
+      - key: APP_MAIL_ENABLED
+        value: "false"
 
   - type: web
-    name: practicantes-web
+    name: practicantes-web-felipe7774
     runtime: docker
     region: ohio
     plan: free
@@ -52,11 +39,8 @@ services:
     envVars:
       - key: PORT
         value: "80"
-      - key: BACKEND_HOSTPORT
-        fromService:
-          type: pserv
-          name: practicantes-api
-          property: hostport
+      - key: BACKEND_URL
+        value: https://practicantes-api-felipe7774.onrender.com
 
 databases:
   - name: practicantes-db

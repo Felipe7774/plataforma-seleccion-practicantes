@@ -17,16 +17,24 @@ public class EmailNotificationSender implements NotificationSender {
 
     private final JavaMailSender mailSender;
     private final String from;
+    private final boolean enabled;
 
     public EmailNotificationSender(
-            JavaMailSender mailSender, @Value("${app.mail.from}") String from) {
+            JavaMailSender mailSender,
+            @Value("${app.mail.from}") String from,
+            @Value("${app.mail.enabled:true}") boolean enabled) {
         this.mailSender = mailSender;
         this.from = from;
+        this.enabled = enabled;
     }
 
     @Override
     @Async
     public void sendStatusChanged(String email, String applicantName, ApplicantStatus status) {
+        if (!enabled) {
+            LOGGER.info("Notificación por correo desactivada para {}", email);
+            return;
+        }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(from);
