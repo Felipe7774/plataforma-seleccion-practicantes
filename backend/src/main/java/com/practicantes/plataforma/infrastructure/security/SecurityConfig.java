@@ -45,9 +45,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml")
                         .permitAll()
-                        .requestMatchers(request -> HttpMethod.POST.matches(request.getMethod())
-                                && "/api/v1/applicants".equals(request.getRequestURI()))
-                        .permitAll()
+                        // GET and PATCH applicant endpoints remain protected by their @PreAuthorize rules.
+                        // This lets the public POST registration reach its controller method.
+                        .requestMatchers("/api/v1/applicants", "/api/v1/applicants/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/refresh")
                         .permitAll()
                         .anyRequest().authenticated())
