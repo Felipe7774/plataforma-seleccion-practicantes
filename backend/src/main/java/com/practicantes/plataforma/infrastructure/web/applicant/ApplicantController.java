@@ -2,6 +2,7 @@ package com.practicantes.plataforma.infrastructure.web.applicant;
 
 import com.practicantes.plataforma.application.command.RegisterApplicantCommand;
 import com.practicantes.plataforma.application.service.ChangeApplicantStatusService;
+import com.practicantes.plataforma.application.service.DownloadApplicantCvService;
 import com.practicantes.plataforma.application.service.GetApplicantDetailsService;
 import com.practicantes.plataforma.application.service.ListApplicantsService;
 import com.practicantes.plataforma.application.service.RegisterApplicantService;
@@ -22,6 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +52,7 @@ public class ApplicantController {
     private final ListApplicantsService listApplicantsService;
     private final GetApplicantDetailsService getApplicantDetailsService;
     private final ChangeApplicantStatusService changeApplicantStatusService;
+    private final DownloadApplicantCvService downloadApplicantCvService;
     private final RateLimitService rateLimitService;
 
     public ApplicantController(
@@ -55,11 +60,13 @@ public class ApplicantController {
             ListApplicantsService listApplicantsService,
             GetApplicantDetailsService getApplicantDetailsService,
             ChangeApplicantStatusService changeApplicantStatusService,
+            DownloadApplicantCvService downloadApplicantCvService,
             RateLimitService rateLimitService) {
         this.registerApplicantService = registerApplicantService;
         this.listApplicantsService = listApplicantsService;
         this.getApplicantDetailsService = getApplicantDetailsService;
         this.changeApplicantStatusService = changeApplicantStatusService;
+        this.downloadApplicantCvService = downloadApplicantCvService;
         this.rateLimitService = rateLimitService;
     }
 
@@ -144,6 +151,27 @@ public class ApplicantController {
     })
     public ApplicantDetailResponse get(@PathVariable java.util.UUID applicantId) {
         return ApplicantDetailResponse.from(getApplicantDetailsService.get(applicantId));
+    }
+
+    @GetMapping(value = "/{applicantId}/cv", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAnyRole('ANALYST', 'ADMIN')")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Descargar la hoja de vida", description = "Descarga el PDF de un postulante para el equipo autorizado.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Hoja de vida descargada", content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE)),
+        @ApiResponse(responseCode = "401", description = "JWT ausente, vencido o inválido", content = @Content),
+        @ApiResponse(responseCode = "403", description = "El usuario no tiene un rol autorizado", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Postulante o hoja de vida no encontrada", content = @Content)
+    })
+    public ResponseEntity<byte[]> downloadCv(@PathVariable java.util.UUID applicantId) {
+        var downloadedCv = downloadApplicantCvService.download(applicantId);
+        ContentDisposition disposition = ContentDisposition.attachment()
+                .filename(downloadedCv.originalFilename(), StandardCharsets.UTF_8)
+                .build();
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
+                .body(downloadedCv.content());
     }
 
     @PatchMapping(value = "/{applicantId}/status", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -77,6 +77,17 @@ export function getApplicant(token: string, id: string) {
   return request<ApplicantDetail>(`/api/v1/applicants/${id}`, {}, token)
 }
 
+export async function downloadCv(token: string, id: string): Promise<Blob> {
+  const response = await fetch(`${baseUrl}/api/v1/applicants/${id}/cv`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!response.ok) {
+    const problem = await response.json().catch(() => null)
+    throw new Error(problem?.detail ?? 'No fue posible descargar la hoja de vida.')
+  }
+  return response.blob()
+}
+
 export function getMetrics(token: string) {
   return request<Metrics>('/api/v1/dashboard/metrics', {}, token)
 }

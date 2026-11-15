@@ -2,6 +2,7 @@ package com.practicantes.plataforma.infrastructure.web;
 
 import com.practicantes.plataforma.application.exception.DuplicateApplicantEmailException;
 import com.practicantes.plataforma.application.exception.ApplicantNotFoundException;
+import com.practicantes.plataforma.application.exception.CvNotFoundException;
 import com.practicantes.plataforma.application.exception.InvalidApplicantStatusException;
 import com.practicantes.plataforma.application.exception.InvalidCvException;
 import com.practicantes.plataforma.application.exception.InvalidCredentialsException;
@@ -43,6 +44,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ApplicantNotFoundException.class)
     ProblemDetail handleNotFound(ApplicantNotFoundException exception) {
+        return problem(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(CvNotFoundException.class)
+    ProblemDetail handleCvNotFound(CvNotFoundException exception) {
         return problem(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
