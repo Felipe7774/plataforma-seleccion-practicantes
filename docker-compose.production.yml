@@ -28,7 +28,9 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: /api
+        # The frontend request paths already start with /api/v1.
+        # Keep the base empty so the browser calls /api/v1, not /api/api/v1.
+        VITE_API_URL: ""
     depends_on:
       - backend
     environment:
