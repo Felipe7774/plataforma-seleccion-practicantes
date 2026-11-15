@@ -7,7 +7,6 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     autoDeployTrigger: checksPass
-    healthCheckPath: /actuator/health
     disk:
       name: applicant-cvs
       mountPath: /app/uploads
