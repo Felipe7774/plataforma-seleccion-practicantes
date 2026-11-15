@@ -13,6 +13,7 @@ vi.mock('./api', async () => {
     getMetrics: vi.fn(),
     getApplicants: vi.fn(),
     getApplicant: vi.fn(),
+    downloadCv: vi.fn(),
     changeStatus: vi.fn(),
   }
 })
@@ -81,10 +82,25 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Selección' }))
     await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
     await screen.findByText('laura-gomez-cv.pdf')
+    expect(screen.getByRole('button', { name: /descargar cv/i })).toBeTruthy()
     await user.type(screen.getByPlaceholderText(/comentario/i), 'Semestre no compatible')
     await user.click(screen.getByRole('button', { name: /no viable/i }))
 
     await waitFor(() => expect(api.changeStatus).toHaveBeenCalledWith('stored-token', applicant.id, 'NOT_VIABLE', 'Semestre no compatible'))
     expect(screen.getByText('Semestre no compatible')).toBeTruthy()
+  })
+
+  it('shows the CV download action in the applicant detail', async () => {
+    const user = userEvent.setup()
+    localStorage.setItem('accessToken', 'stored-token')
+    vi.mocked(api.getMetrics).mockResolvedValue({ total: 1, byStatus: [], byCareer: [] })
+    vi.mocked(api.getApplicants).mockResolvedValue({ items: [applicant], totalElements: 1, totalPages: 1, page: 0, size: 10 })
+    vi.mocked(api.getApplicant).mockResolvedValue(applicantDetail)
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Selección' }))
+    await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
+
+    expect(await screen.findByRole('button', { name: /descargar cv/i })).toBeTruthy()
   })
 })

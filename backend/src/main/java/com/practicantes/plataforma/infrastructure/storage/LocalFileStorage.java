@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,22 @@ public class LocalFileStorage implements FileStorage {
             return new StoredFile(key, safeOriginalFilename(file.originalFilename()));
         } catch (IOException exception) {
             throw new IllegalStateException("No fue posible guardar la hoja de vida", exception);
+        }
+    }
+
+    @Override
+    public Optional<byte[]> load(String key) {
+        try {
+            Path source = rootDirectory.resolve(key).normalize();
+            if (!source.startsWith(rootDirectory)) {
+                throw new IllegalStateException("Invalid storage source");
+            }
+            if (!Files.isRegularFile(source)) {
+                return Optional.empty();
+            }
+            return Optional.of(Files.readAllBytes(source));
+        } catch (IOException exception) {
+            throw new IllegalStateException("No fue posible leer la hoja de vida", exception);
         }
     }
 
