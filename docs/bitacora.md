@@ -4,7 +4,7 @@
 
 - Proyecto: Plataforma de Selección de Practicantes
 - Repositorio: `Felipe7774/plataforma-seleccion-practicantes`
-- Rama actual: `codex/fix-public-application-endpoint`
+- Rama de trabajo: `feature/cv-download-and-docs`
 - Último hito funcional: aplicación desplegada y verificada en AWS EC2
 - Fecha de corte: 15 de noviembre de 2026
 
@@ -125,7 +125,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 ### Prioridad alta
 
-- Revisar y aprobar el Pull Request de `codex/fix-public-application-endpoint` antes del merge a `main`.
+- Revisar y aprobar el Pull Request de mejoras pendientes antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Documentar la actualización de la instancia AWS y conservar los secretos fuera del repositorio.
 - Añadir dominio, HTTPS y respaldos antes de considerar un uso productivo.
