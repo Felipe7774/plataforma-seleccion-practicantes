@@ -9,6 +9,7 @@ services:
       MAIL_HOST: ${MAIL_HOST:-mailpit}
       MAIL_PORT: ${MAIL_PORT:-1025}
       MAIL_FROM: ${MAIL_FROM:-no-reply@practicantes.local}
+      APP_MAIL_ENABLED: ${APP_MAIL_ENABLED:-true}
       APP_STORAGE_LOCAL_PATH: /app/uploads
       APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN:-http://localhost}
       APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-admin}
