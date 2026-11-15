@@ -59,9 +59,11 @@ docker compose -f docker-compose.yml -f docker-compose.production.yml up --build
 
 La interfaz queda disponible en `http://localhost` (o el puerto definido en `FRONTEND_PORT`), el proxy interno dirige `/api` al backend y `http://localhost/health` expone el health check para monitoreo. En un entorno real configura `MAIL_HOST`, `MAIL_PORT`, `MAIL_FROM`, una contraseña de base de datos segura y un origen HTTPS en `APP_CORS_ALLOWED_ORIGIN`.
 
-## Despliegue en Render
+## Despliegue gratuito en Render
 
-El repositorio incluye [`render.yaml`](render.yaml), un Blueprint que crea una API privada con disco persistente para CV, una web pública, una base de datos PostgreSQL y despliegue automático tras una CI exitosa. Para aplicarlo, crea un Blueprint en Render desde el repositorio y completa los secretos solicitados: `APP_ADMIN_PASSWORD`, `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD` y `MAIL_FROM`. La API usa la red privada de Render y la web pública entrega la aplicación con HTTPS.
+El repositorio incluye [`render.yaml`](render.yaml), un Blueprint de demostración sin tarjeta: crea dos servicios web públicos y una base de datos PostgreSQL gratuita. Solo solicita `APP_ADMIN_PASSWORD`; el secreto JWT se genera en Render y el correo queda desactivado (`APP_MAIL_ENABLED=false`) porque los servicios gratuitos no pueden usar SMTP. La web usa el proxy HTTPS hacia la API pública.
+
+Los CV se guardan de forma temporal en `/tmp/uploads`: se pierden al reiniciar, suspender o volver a desplegar el backend. La base de datos gratuita tiene 1 GB y caduca a los 30 días. Esta configuración sirve para evaluación o portafolio; para producción se debe añadir almacenamiento de archivos persistente/externo y un plan de base de datos sin caducidad.
 
 ## API disponible
 

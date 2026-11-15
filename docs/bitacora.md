@@ -104,7 +104,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Dockerfile multi-etapa para backend Java 21 y frontend React.
 - Nginx entrega la aplicación estática y redirige `/api` al backend interno.
 - Compose de producción reutilizable con PostgreSQL, persistencia de CV y configuración por variables de entorno.
-- Blueprint `render.yaml` preparado para Render, con red privada, PostgreSQL y disco persistente.
+- Blueprint `render.yaml` preparado para Render. Incluye una modalidad gratuita para demostración: API y web públicas, PostgreSQL gratuito y almacenamiento temporal de CV.
 
 ## Evidencia de verificación
 
