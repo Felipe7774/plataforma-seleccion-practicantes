@@ -4,7 +4,7 @@
 
 - Proyecto: Plataforma de Selección de Practicantes
 - Repositorio: `Felipe7774/plataforma-seleccion-practicantes`
-- Rama actual: `codex/fix-public-application-endpoint`
+- Rama de trabajo: `feature/cv-download-and-docs`
 - Último hito funcional: aplicación desplegada y verificada en AWS EC2
 - Fecha de corte: 15 de noviembre de 2026
 
@@ -110,11 +110,13 @@ Commit: `82de4e2 feat: add product workflow extras`
 - Se corrigió la ruta de API del frontend para evitar el prefijo duplicado `/api/api/v1`.
 - El registro público se verifica sin JWT y el almacenamiento de CV inicializa permisos para el usuario no privilegiado del backend.
 - Verificación en AWS: inicio de sesión administrativo, registro de postulante con PDF y visualización de la postulación en el panel.
+- Se centralizó el manejo de errores HTTP con respuestas `ProblemDetail` para validaciones, formatos no soportados y errores inesperados.
+- Se añadió la descarga autenticada de hojas de vida desde el detalle del postulante para los roles `ANALYST` y `ADMIN`.
 
 ## Evidencia de verificación
 
 - Backend: `mvnw.cmd verify` correcto.
-- Pruebas backend: 17 ejecutadas, 0 fallos.
+- Pruebas backend: 21 ejecutadas, 0 fallos.
 - Frontend: `npm run lint` correcto.
 - Frontend: `npm run build` correcto.
 - Prueba integrada local: login, filtro paginado, rechazo de decisión sin comentario, cambio de estado, historial y métricas.
@@ -125,7 +127,7 @@ Commit: `82de4e2 feat: add product workflow extras`
 
 ### Prioridad alta
 
-- Revisar y aprobar el Pull Request de `codex/fix-public-application-endpoint` antes del merge a `main`.
+- Revisar y aprobar el Pull Request de mejoras pendientes antes del merge a `main`.
 - Añadir cobertura de componentes para errores de red, filtros, historial y cierre de sesión.
 - Documentar la actualización de la instancia AWS y conservar los secretos fuera del repositorio.
 - Añadir dominio, HTTPS y respaldos antes de considerar un uso productivo.

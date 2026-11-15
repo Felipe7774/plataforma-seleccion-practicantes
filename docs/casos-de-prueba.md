@@ -6,6 +6,8 @@
 | CP-02 | HU-01 | Rechazo de correo duplicado | Servicio/API | Aprobado | Suite backend |
 | CP-03 | HU-01 | Rechazo de archivo que no es PDF o supera 5 MB | Servicio/API | Aprobado | Suite backend |
 | CP-04 | HU-01 | El endpoint público de postulación no exige JWT | Integración web | Aprobado | `BackendApplicationTests` |
+| CP-05 | HU-02 | JSON mal formado devuelve `ProblemDetail` | Integración web | Aprobado | `BackendApplicationTests` |
+| CP-06 | HU-03 | Descarga del CV con nombre original | Servicio | Aprobado | `DownloadApplicantCvServiceTest` |
 | CP-10 | HU-02 | Login con credenciales válidas | Servicio | Aprobado | `AuthenticationServiceTest` |
 | CP-11 | HU-02 | Rechazo de contraseña inválida | Servicio | Aprobado | `AuthenticationServiceTest` |
 | CP-21 | HU-03 | Paginación, filtros y búsqueda | Servicio | Aprobado | `ListApplicantsServiceTest` |
@@ -18,11 +20,12 @@
 | CP-FE-01 | HU-01 | Navegación desde portada al formulario público | Componente | Aprobado | `App.test.tsx` |
 | CP-FE-02 | HU-02 | Login redirige al panel interno | Componente | Aprobado | `App.test.tsx` |
 | CP-FE-03 | HU-04 | Decisión NOT_VIABLE envía comentario al API | Componente | Aprobado | `App.test.tsx` |
+| CP-FE-04 | HU-03 | El detalle muestra la acción para descargar el CV | Componente | Aprobado | `App.test.tsx` |
 
 ## Ejecución más reciente
 
 - Fecha: 15 de noviembre de 2026.
-- Backend: 17 pruebas aprobadas con `mvnw.cmd verify`.
-- Frontend: 3 pruebas aprobadas con `npm test`.
+- Backend: 21 pruebas aprobadas con `mvnw.cmd verify`.
+- Frontend: 4 pruebas aprobadas con `npm test`.
 - Calidad estática: `npm run lint` y `npm run build` ejecutados correctamente.
 

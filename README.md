@@ -141,6 +141,8 @@ Las rutas de autenticación son:
 
 `GET /api/v1/applicants`, `GET /api/v1/applicants/{id}` y `PATCH /api/v1/applicants/{id}/status` requieren un JWT con el rol `ANALYST` o `ADMIN`. Los refresh tokens se guardan únicamente como hashes SHA-256 y se invalidan al rotarlos o cerrar sesión.
 
+`GET /api/v1/applicants/{id}/cv` también requiere un JWT con rol `ANALYST` o `ADMIN` y descarga la hoja de vida como PDF usando su nombre original. El archivo se resuelve desde el almacenamiento interno y no se expone como una ruta pública.
+
 El listado admite `status`, `career`, `q`, `page` y `size`; devuelve elementos y metadatos de paginación. El detalle incluye el historial de decisiones. Para asignar `NOT_VIABLE` se debe enviar un `comment`; cada cambio queda registrado y dispara un correo asíncrono sin afectar la decisión si Mailpit/SMTP no está disponible.
 
 `GET /api/v1/dashboard/metrics` devuelve el total de postulaciones y sus agrupaciones por estado y carrera para los roles `ANALYST` y `ADMIN`.
@@ -166,6 +168,8 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 | CP-02 | HU-01 | Rechazo de correo duplicado | Servicio/API | Suite backend |
 | CP-03 | HU-01 | Rechazo de archivo inválido o mayor de 5 MB | Servicio/API | Suite backend |
 | CP-04 | HU-01 | Endpoint público sin JWT | Integración web | `BackendApplicationTests` |
+| CP-05 | HU-02 | JSON mal formado devuelve `ProblemDetail` | Integración web | `BackendApplicationTests` |
+| CP-06 | HU-03 | Descarga del CV con nombre original | Servicio | `DownloadApplicantCvServiceTest` |
 | CP-10 | HU-02 | Login válido | Servicio | `AuthenticationServiceTest` |
 | CP-11 | HU-02 | Contraseña inválida | Servicio | `AuthenticationServiceTest` |
 | CP-21 | HU-03 | Paginación, filtros y búsqueda | Servicio | `ListApplicantsServiceTest` |
@@ -178,6 +182,7 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 | CP-FE-01 | HU-01 | Navegación al formulario público | Componente | `App.test.tsx` |
 | CP-FE-02 | HU-02 | Login redirige al panel | Componente | `App.test.tsx` |
 | CP-FE-03 | HU-04 | `NOT_VIABLE` envía comentario | Componente | `App.test.tsx` |
+| CP-FE-04 | HU-03 | El detalle muestra la acción para descargar el CV | Componente | `App.test.tsx` |
 
 La matriz ampliada y la última ejecución están en [`docs/casos-de-prueba.md`](docs/casos-de-prueba.md).
 
