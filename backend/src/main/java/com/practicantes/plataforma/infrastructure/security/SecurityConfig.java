@@ -45,10 +45,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/applicants").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/refresh")
                         .permitAll()
-                        .anyRequest().authenticated())
+                        // Administrative routes are protected by @PreAuthorize in their controllers.
+                        // Keeping the HTTP layer open allows the public multipart registration to reach its controller.
+                        .anyRequest().permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
                         jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
