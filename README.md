@@ -26,6 +26,52 @@ docs/        decisiones y documentación del proyecto
 scripts/     verificación y automatización
 ```
 
+## Arquitectura utilizada
+
+Se implementó un **monorepositorio con una arquitectura hexagonal pragmática en el backend**, organizada como un monolito modular. La aplicación separa el dominio, los casos de uso y los adaptadores de infraestructura para que las reglas del negocio no dependan directamente de Spring, PostgreSQL o servicios externos.
+
+```text
+Navegador
+   │
+   ▼
+React + TypeScript + Vite
+   │ HTTP / JSON / multipart
+   ▼
+Nginx (frontend y proxy /api)
+   │
+   ▼
+Spring Boot REST API
+   ├── Seguridad: JWT, roles y rate limiting
+   ├── Aplicación: servicios y casos de uso
+   ├── Dominio: entidades, reglas y puertos
+   └── Infraestructura
+       ├── JPA + PostgreSQL + Flyway
+       ├── Almacenamiento local de CV en volumen Docker
+       └── Mailpit/SMTP para notificaciones
+```
+
+En AWS, React/Nginx, Spring Boot, PostgreSQL y Mailpit se ejecutan en contenedores Docker Compose dentro de una instancia EC2. PostgreSQL y el backend no se exponen directamente a Internet; Nginx publica la interfaz y redirige las rutas `/api` al backend.
+
+### Capas del backend
+
+- **Dominio:** modelos `Applicant`, `User`, estados, historial y puertos de salida.
+- **Aplicación:** servicios para registrar, listar, autenticar, decidir y consultar métricas.
+- **Infraestructura:** controladores REST, persistencia JPA, JWT, almacenamiento de archivos, correo y configuración.
+
+Esta arquitectura también se conoce como **arquitectura hexagonal o de puertos y adaptadores**. Sus beneficios principales son facilitar las pruebas, aislar la infraestructura y permitir cambiar el almacenamiento local por S3 u otro proveedor en el futuro.
+
+## Historias de usuario
+
+| ID | Historia | Criterio principal de aceptación |
+| --- | --- | --- |
+| HU-01 | Como estudiante, quiero registrar mis datos académicos y mi hoja de vida para participar en el proceso de selección. | El sistema acepta un PDF válido de máximo 5 MB, crea la postulación en estado `PENDING` y muestra confirmación. |
+| HU-02 | Como analista, quiero iniciar sesión de forma segura para consultar únicamente la información autorizada. | Las credenciales válidas entregan un JWT y abren el panel; las inválidas no conceden acceso. |
+| HU-03 | Como analista, quiero buscar, filtrar y paginar postulantes para revisar el proceso con eficiencia. | El listado combina búsqueda, estado, carrera y paginación con sus metadatos. |
+| HU-04 | Como analista, quiero registrar una decisión sobre un postulante para dejar evidencia del resultado. | El cambio a `VIABLE` o `NOT_VIABLE` actualiza el estado y registra usuario, fecha y comentario cuando corresponde. |
+| HU-05 | Como responsable de selección, quiero consultar métricas y notificar cambios para hacer seguimiento. | El panel muestra métricas por estado y carrera; un fallo de correo no revierte la decisión. |
+
+La especificación completa en formato Gherkin está en [`docs/historias-de-usuario.md`](docs/historias-de-usuario.md).
+
 ## Requisitos
 
 - Java 21
@@ -111,6 +157,29 @@ La especificación OpenAPI generada se consulta en `/v3/api-docs.yaml` y su expo
 - Bash: `./scripts/verify.sh`
 - GitHub Actions ejecuta `mvn verify` en el backend y pruebas, lint y build en el frontend para cada pull request dirigido a `main`.
 - Dependabot revisa semanalmente las dependencias de Maven, npm y GitHub Actions.
+
+## Casos de prueba
+
+| ID | Historia | Caso verificado | Nivel | Evidencia |
+| --- | --- | --- | --- | --- |
+| CP-01 | HU-01 | Registro exitoso con PDF válido | Servicio/API | Suite backend |
+| CP-02 | HU-01 | Rechazo de correo duplicado | Servicio/API | Suite backend |
+| CP-03 | HU-01 | Rechazo de archivo inválido o mayor de 5 MB | Servicio/API | Suite backend |
+| CP-04 | HU-01 | Endpoint público sin JWT | Integración web | `BackendApplicationTests` |
+| CP-10 | HU-02 | Login válido | Servicio | `AuthenticationServiceTest` |
+| CP-11 | HU-02 | Contraseña inválida | Servicio | `AuthenticationServiceTest` |
+| CP-21 | HU-03 | Paginación, filtros y búsqueda | Servicio | `ListApplicantsServiceTest` |
+| CP-27 | HU-04 | Detalle con historial | Integración local | Verificación API |
+| CP-29 | HU-04 | Registro de cambio de estado | Servicio | `ChangeApplicantStatusServiceTest` |
+| CP-30 | HU-04 | Comentario obligatorio para `NOT_VIABLE` | Servicio | `ChangeApplicantStatusServiceTest` |
+| CP-38 | HU-05 | Fallo de correo no revierte decisión | Servicio | `ChangeApplicantStatusServiceTest` |
+| CP-40 | HU-05 | Métricas por estado y carrera | Servicio | `GetDashboardMetricsServiceTest` |
+| CP-41 | HU-05 | Métricas vacías sin error | Servicio | `GetDashboardMetricsServiceTest` |
+| CP-FE-01 | HU-01 | Navegación al formulario público | Componente | `App.test.tsx` |
+| CP-FE-02 | HU-02 | Login redirige al panel | Componente | `App.test.tsx` |
+| CP-FE-03 | HU-04 | `NOT_VIABLE` envía comentario | Componente | `App.test.tsx` |
+
+La matriz ampliada y la última ejecución están en [`docs/casos-de-prueba.md`](docs/casos-de-prueba.md).
 
 ## Flujo Git
 
