@@ -15,7 +15,7 @@ function App() {
 
   if (screen === 'dashboard') return <Dashboard token={token} onLogin={() => setScreen('login')} onSignOut={signOut} />
   return <main className="public-shell">
-    <PublicHeader onApply={() => setScreen('apply')} onLogin={() => setScreen(token ? 'dashboard' : 'login')} />
+    <PublicHeader onApply={() => setScreen('apply')} onLogin={() => setScreen('login')} />
     {screen === 'apply' ? <ApplicationForm /> : <Login onBack={() => setScreen('apply')} onLogin={() => { setToken(localStorage.getItem('accessToken') ?? ''); setScreen('dashboard') }} />}
   </main>
 }
@@ -27,7 +27,7 @@ function PublicHeader({ onApply, onLogin }: { onApply: () => void; onLogin: () =
     <button className="brand-button" onClick={onApply} aria-label="Ir a la postulación"><Brand /></button>
     <span className="header-claim">JÓVENES QUE TRANSFORMAN</span>
     <span className="header-program">Programa de prácticas&nbsp; / &nbsp;2026</span>
-    <button className="analyst-link" onClick={onLogin}>Acceso de analistas</button>
+    <button className="analyst-link" onClick={onLogin}>Iniciar sesión admin</button>
   </header>
 }
 
@@ -61,7 +61,7 @@ function ApplicationForm() {
         </div></fieldset>
         <fieldset><legend>2. Hoja de vida</legend><label className="upload-zone">
           <input required type="file" name="cv" accept="application/pdf" aria-label="Hoja de vida (PDF)" onChange={event => setFilename(event.target.files?.[0]?.name ?? '')} />
-          <span className="upload-icon" aria-hidden="true">⇧</span><span className="upload-copy"><strong>{filename || 'Arrastra tu hoja de vida aquí'}</strong><small>{filename ? 'Archivo PDF seleccionado' : 'Solo PDF · Tamaño máximo: 5 MB'}</small></span><span className="upload-action">Seleccionar archivo</span>
+          <span className="upload-icon" aria-hidden="true">PDF</span><span className="upload-copy"><strong>{filename || 'Selecciona tu hoja de vida'}</strong><small>{filename ? 'Archivo PDF seleccionado' : 'Solo PDF · Tamaño máximo: 5 MB'}</small></span><span className="upload-action">Seleccionar archivo</span>
         </label></fieldset>
         <label className="privacy-check"><input required type="checkbox" /><span>Autorizo el tratamiento de mis datos personales y acepto la <a href="#privacy">política de privacidad.</a></span></label>
         {error && <p className="notice error">{error}</p>}{message && <p className="notice success">{message}</p>}
