@@ -38,16 +38,16 @@ const applicantDetail = {
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
   })
 
-  it('shows the public application form from the landing page', async () => {
-    const user = userEvent.setup()
+  it('shows the public application form on the main page', () => {
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /iniciar postulación/i }))
-
-    expect(screen.getByRole('heading', { name: /cuéntanos sobre ti/i })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: /hagamos que suceda/i })).toBeTruthy()
     expect(screen.getByLabelText(/hoja de vida/i)).toBeTruthy()
+    expect(screen.getByRole('button', { name: /iniciar sesión admin/i })).toBeTruthy()
+    expect(screen.queryByText(/arrastra/i)).toBeNull()
   })
 
   it('authenticates a selection user and opens the dashboard', async () => {
@@ -57,18 +57,51 @@ describe('App', () => {
     vi.mocked(api.getApplicants).mockResolvedValue({ items: [], totalElements: 0, totalPages: 0, page: 0, size: 10 })
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /equipo de selección/i }))
+    await user.click(screen.getByRole('button', { name: /iniciar sesión admin/i }))
     await user.type(screen.getByLabelText('Usuario'), 'analista')
     await user.type(screen.getByLabelText('Contraseña'), 'secreto')
-    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
+    await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
 
-    await waitFor(() => expect(screen.getByRole('heading', { name: /selección de practicantes/i })).toBeTruthy())
+    await waitFor(() => expect(screen.getByRole('heading', { name: /practicantes/i })).toBeTruthy())
     expect(localStorage.getItem('accessToken')).toBe('jwt-for-test')
+    expect(screen.queryByRole('button', { name: /resumen/i })).toBeNull()
+  })
+
+  it('applies every status filter, restores all records and searches by name', async () => {
+    const user = userEvent.setup()
+    vi.mocked(api.login).mockResolvedValue({ accessToken: 'jwt-for-test' })
+    vi.mocked(api.getMetrics).mockResolvedValue({ total: 3, byStatus: [], byCareer: [] })
+    vi.mocked(api.getApplicants).mockResolvedValue({ items: [], totalElements: 0, totalPages: 0, page: 0, size: 10 })
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /iniciar sesión admin/i }))
+    await user.type(screen.getByLabelText('Usuario'), 'analista')
+    await user.type(screen.getByLabelText('Contraseña'), 'secreto')
+    await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
+    await screen.findByRole('heading', { name: /practicantes/i })
+
+    const statusFilter = screen.getByLabelText('Filtrar por estado')
+    await user.selectOptions(statusFilter, 'NOT_VIABLE')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'NOT_VIABLE' }))
+
+    await user.selectOptions(statusFilter, 'VIABLE')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'VIABLE' }))
+
+    await user.selectOptions(statusFilter, 'PENDING')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'PENDING' }))
+
+    await user.selectOptions(statusFilter, 'VIABLE')
+    await user.type(screen.getByLabelText('Buscar'), 'Laura')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { q: 'Laura', status: 'VIABLE' }))
+
+    await user.click(screen.getByRole('button', { name: /todas las postulaciones/i }))
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { q: 'Laura' }))
   })
 
   it('loads a candidate detail and records a non-viable decision with a comment', async () => {
     const user = userEvent.setup()
     localStorage.setItem('accessToken', 'stored-token')
+    vi.mocked(api.login).mockResolvedValue({ accessToken: 'stored-token' })
     vi.mocked(api.getMetrics).mockResolvedValue({ total: 1, byStatus: [{ status: 'PENDING', count: 1 }], byCareer: [] })
     vi.mocked(api.getApplicants).mockResolvedValue({ items: [applicant], totalElements: 1, totalPages: 1, page: 0, size: 10 })
     vi.mocked(api.getApplicant).mockResolvedValue(applicantDetail)
@@ -79,11 +112,14 @@ describe('App', () => {
     })
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Selección' }))
-    await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
+    await user.click(screen.getByRole('button', { name: /iniciar sesión admin/i }))
+    await user.type(screen.getByLabelText('Usuario'), 'analista')
+    await user.type(screen.getByLabelText('Contraseña'), 'secreto')
+    await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
+    await user.click(await screen.findByRole('button', { name: /ver perfil de laura gómez/i }))
     await screen.findByText('laura-gomez-cv.pdf')
     expect(screen.getByRole('button', { name: /descargar cv/i })).toBeTruthy()
-    await user.type(screen.getByPlaceholderText(/comentario/i), 'Semestre no compatible')
+    await user.type(screen.getByPlaceholderText(/motivos de tu decisión/i), 'Semestre no compatible')
     await user.click(screen.getByRole('button', { name: /no viable/i }))
 
     await waitFor(() => expect(api.changeStatus).toHaveBeenCalledWith('stored-token', applicant.id, 'NOT_VIABLE', 'Semestre no compatible'))
@@ -93,14 +129,19 @@ describe('App', () => {
   it('shows the CV download action in the applicant detail', async () => {
     const user = userEvent.setup()
     localStorage.setItem('accessToken', 'stored-token')
+    vi.mocked(api.login).mockResolvedValue({ accessToken: 'stored-token' })
     vi.mocked(api.getMetrics).mockResolvedValue({ total: 1, byStatus: [], byCareer: [] })
     vi.mocked(api.getApplicants).mockResolvedValue({ items: [applicant], totalElements: 1, totalPages: 1, page: 0, size: 10 })
     vi.mocked(api.getApplicant).mockResolvedValue(applicantDetail)
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Selección' }))
-    await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
+    await user.click(screen.getByRole('button', { name: /iniciar sesión admin/i }))
+    await user.type(screen.getByLabelText('Usuario'), 'analista')
+    await user.type(screen.getByLabelText('Contraseña'), 'secreto')
+    await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
+    await user.click(await screen.findByRole('button', { name: /ver perfil de laura gómez/i }))
 
-    expect(await screen.findByRole('button', { name: /descargar cv/i })).toBeTruthy()
+    expect((await screen.findByRole('button', { name: /descargar cv/i })).textContent).toBe('Abrir documento')
+    expect(screen.queryByText(/&nbsp;/i)).toBeNull()
   })
 })
