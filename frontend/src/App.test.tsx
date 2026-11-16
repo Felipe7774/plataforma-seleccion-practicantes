@@ -64,6 +64,7 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByRole('heading', { name: /practicantes/i })).toBeTruthy())
     expect(localStorage.getItem('accessToken')).toBe('jwt-for-test')
+    expect(screen.queryByRole('button', { name: /resumen/i })).toBeNull()
   })
 
   it('loads a candidate detail and records a non-viable decision with a comment', async () => {
@@ -109,6 +110,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
     await user.click(await screen.findByRole('button', { name: /ver perfil de laura gómez/i }))
 
-    expect(await screen.findByRole('button', { name: /descargar cv/i })).toBeTruthy()
+    expect((await screen.findByRole('button', { name: /descargar cv/i })).textContent).toBe('Abrir documento')
+    expect(screen.queryByText(/&nbsp;/i)).toBeNull()
   })
 })
