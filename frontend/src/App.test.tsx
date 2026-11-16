@@ -38,15 +38,13 @@ const applicantDetail = {
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
   })
 
-  it('shows the public application form from the landing page', async () => {
-    const user = userEvent.setup()
+  it('shows the public application form on the main page', () => {
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /iniciar postulación/i }))
-
-    expect(screen.getByRole('heading', { name: /cuéntanos sobre ti/i })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: /hagamos que suceda/i })).toBeTruthy()
     expect(screen.getByLabelText(/hoja de vida/i)).toBeTruthy()
   })
 
@@ -57,12 +55,12 @@ describe('App', () => {
     vi.mocked(api.getApplicants).mockResolvedValue({ items: [], totalElements: 0, totalPages: 0, page: 0, size: 10 })
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: /equipo de selección/i }))
+    await user.click(screen.getByRole('button', { name: /acceso de analistas/i }))
     await user.type(screen.getByLabelText('Usuario'), 'analista')
     await user.type(screen.getByLabelText('Contraseña'), 'secreto')
     await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
 
-    await waitFor(() => expect(screen.getByRole('heading', { name: /selección de practicantes/i })).toBeTruthy())
+    await waitFor(() => expect(screen.getByRole('heading', { name: /practicantes/i })).toBeTruthy())
     expect(localStorage.getItem('accessToken')).toBe('jwt-for-test')
   })
 
@@ -79,11 +77,11 @@ describe('App', () => {
     })
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Selección' }))
-    await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
+    await user.click(screen.getByRole('button', { name: /acceso de analistas/i }))
+    await user.click(await screen.findByRole('button', { name: /ver perfil de laura gómez/i }))
     await screen.findByText('laura-gomez-cv.pdf')
     expect(screen.getByRole('button', { name: /descargar cv/i })).toBeTruthy()
-    await user.type(screen.getByPlaceholderText(/comentario/i), 'Semestre no compatible')
+    await user.type(screen.getByPlaceholderText(/motivos de tu decisión/i), 'Semestre no compatible')
     await user.click(screen.getByRole('button', { name: /no viable/i }))
 
     await waitFor(() => expect(api.changeStatus).toHaveBeenCalledWith('stored-token', applicant.id, 'NOT_VIABLE', 'Semestre no compatible'))
@@ -98,8 +96,8 @@ describe('App', () => {
     vi.mocked(api.getApplicant).mockResolvedValue(applicantDetail)
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Selección' }))
-    await user.click(await screen.findByRole('button', { name: /laura gómez/i }))
+    await user.click(screen.getByRole('button', { name: /acceso de analistas/i }))
+    await user.click(await screen.findByRole('button', { name: /ver perfil de laura gómez/i }))
 
     expect(await screen.findByRole('button', { name: /descargar cv/i })).toBeTruthy()
   })
