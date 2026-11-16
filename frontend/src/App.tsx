@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { changeStatus, downloadCv, getApplicant, getApplicants, getMetrics, login, registerApplicant } from './api'
 import type { Applicant, ApplicantDetail, ApplicantStatus, Metrics } from './api'
@@ -87,11 +87,12 @@ function Login({ onLogin, onBack }: { onLogin: () => void; onBack: () => void })
 
 function Dashboard({ token, onLogin, onSignOut }: { token: string; onLogin: () => void; onSignOut: () => void }) {
   const [metrics, setMetrics] = useState<Metrics | null>(null); const [applicants, setApplicants] = useState<Applicant[]>([]); const [selected, setSelected] = useState<ApplicantDetail | null>(null); const [query, setQuery] = useState(''); const [status, setStatus] = useState(''); const [sort, setSort] = useState('recent'); const [error, setError] = useState(''); const [loading, setLoading] = useState(true)
+  const latestRequest = useRef(0)
   const load = useCallback(async (nextQuery = '', nextStatus = '') => {
-    if (!token) { onLogin(); return } await Promise.resolve(); setLoading(true); setError('')
-    try { const [nextMetrics, page] = await Promise.all([getMetrics(token), getApplicants(token, { ...(nextQuery ? { q: nextQuery } : {}), ...(nextStatus ? { status: nextStatus } : {}) })]); setMetrics(nextMetrics); setApplicants(page.items) }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'No fue posible cargar el panel.') }
-    finally { setLoading(false) }
+    if (!token) { onLogin(); return } const requestId = ++latestRequest.current; setLoading(true); setError('')
+    try { const [nextMetrics, page] = await Promise.all([getMetrics(token), getApplicants(token, { ...(nextQuery ? { q: nextQuery } : {}), ...(nextStatus ? { status: nextStatus } : {}) })]); if (requestId === latestRequest.current) { setMetrics(nextMetrics); setApplicants(page.items) } }
+    catch (cause) { if (requestId === latestRequest.current) setError(cause instanceof Error ? cause.message : 'No fue posible cargar el panel.') }
+    finally { if (requestId === latestRequest.current) setLoading(false) }
   }, [onLogin, token])
   useEffect(() => { queueMicrotask(() => { void load() }) }, [load])
   const sortedApplicants = useMemo(() => [...applicants].sort((a, b) => (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * (sort === 'oldest' ? 1 : -1)), [applicants, sort])
@@ -104,18 +105,18 @@ function Dashboard({ token, onLogin, onSignOut }: { token: string; onLogin: () =
   return <main className="admin-shell">
     <aside className="admin-sidebar"><Brand /><p>GESTIÓN DE PRÁCTICAS</p><nav aria-label="Panel administrativo"><button className="active" onClick={() => setSelected(null)}><span>♙</span> Practicantes</button></nav><button className="sidebar-logout" onClick={onSignOut}>Salir</button></aside>
     <section className="admin-workspace"><header className="admin-topbar"><span>Talento humano</span><span>Convocatoria 2026-2</span><span className="notification">♧</span><div><strong>Equipo de selección</strong><small>Analista</small></div></header>{error && <p className="notice error admin-notice">{error}</p>}
-      {selected ? <Detail applicant={selected} token={token} onBack={() => setSelected(null)} onDecide={decide} /> : <ApplicantsDashboard metrics={metrics} applicants={sortedApplicants} loading={loading} query={query} status={status} sort={sort} onQuery={setQuery} onStatus={setStatus} onSort={setSort} onFilter={() => void load(query, status)} onChoose={choose} onExport={exportCsv} />}
+      {selected ? <Detail applicant={selected} token={token} onBack={() => setSelected(null)} onDecide={decide} /> : <ApplicantsDashboard metrics={metrics} applicants={sortedApplicants} loading={loading} query={query} status={status} sort={sort} onQuery={setQuery} onStatus={setStatus} onSort={setSort} onApplyFilters={(nextQuery, nextStatus) => void load(nextQuery, nextStatus)} onChoose={choose} onExport={exportCsv} />}
     </section>
   </main>
 }
 
-function ApplicantsDashboard({ metrics, applicants, loading, query, status, sort, onQuery, onStatus, onSort, onFilter, onChoose, onExport }: { metrics: Metrics | null; applicants: Applicant[]; loading: boolean; query: string; status: string; sort: string; onQuery: (value: string) => void; onStatus: (value: string) => void; onSort: (value: string) => void; onFilter: () => void; onChoose: (applicant: Applicant) => void; onExport: () => void }) {
+function ApplicantsDashboard({ metrics, applicants, loading, query, status, sort, onQuery, onStatus, onSort, onApplyFilters, onChoose, onExport }: { metrics: Metrics | null; applicants: Applicant[]; loading: boolean; query: string; status: string; sort: string; onQuery: (value: string) => void; onStatus: (value: string) => void; onSort: (value: string) => void; onApplyFilters: (query: string, status: string) => void; onChoose: (applicant: Applicant) => void; onExport: () => void }) {
   const count = (wanted: ApplicantStatus) => metrics?.byStatus.find(item => item.status === wanted)?.count ?? 0
   return <div className="admin-content">
     <div className="page-title-row"><div><h1>Practicantes</h1><p>Cada perfil es una nueva oportunidad. Encuentra el próximo gran talento.</p></div><button className="export-button" onClick={onExport}>⇩ &nbsp; Exportar listado</button></div>
     <div className="metric-grid"><Metric label="Total de postulaciones" value={metrics?.total ?? '—'} tone="blue" icon="♙" /><Metric label="Por revisar" value={metrics ? count('PENDING') : '—'} tone="yellow" icon="◷" /><Metric label="Viables" value={metrics ? count('VIABLE') : '—'} tone="green" icon="✓" /><Metric label="No viables" value={metrics ? count('NOT_VIABLE') : '—'} tone="red" icon="×" /></div>
-    <div className="list-tabs"><button className="active">Todas las postulaciones</button><button onClick={() => { onStatus('PENDING'); queueMicrotask(onFilter) }}>Por revisar</button></div>
-    <div className="table-filters"><div className="search-field">⌕<input aria-label="Buscar" placeholder="Buscar por nombre o correo electrónico" value={query} onChange={event => onQuery(event.target.value)} onKeyDown={event => event.key === 'Enter' && onFilter()} /></div><select aria-label="Filtrar por estado" value={status} onChange={event => { onStatus(event.target.value); queueMicrotask(onFilter) }}><option value="">Estado: Todos</option><option value="PENDING">Por revisar</option><option value="VIABLE">Viables</option><option value="NOT_VIABLE">No viables</option></select><select aria-label="Ordenar postulaciones" value={sort} onChange={event => onSort(event.target.value)}><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option></select></div>
+    <div className="list-tabs"><button className={!status ? 'active' : ''} onClick={() => { onStatus(''); onApplyFilters(query, '') }}>Todas las postulaciones</button><button className={status === 'PENDING' ? 'active' : ''} onClick={() => { onStatus('PENDING'); onApplyFilters(query, 'PENDING') }}>Por revisar</button></div>
+    <div className="table-filters"><div className="search-field">⌕<input aria-label="Buscar" placeholder="Buscar por nombre o correo electrónico" value={query} onChange={event => { const nextQuery = event.target.value; onQuery(nextQuery); onApplyFilters(nextQuery, status) }} /></div><select aria-label="Filtrar por estado" value={status} onChange={event => { const nextStatus = event.target.value; onStatus(nextStatus); onApplyFilters(query, nextStatus) }}><option value="">Estado: Todos</option><option value="PENDING">Por revisar</option><option value="VIABLE">Viables</option><option value="NOT_VIABLE">No viables</option></select><select aria-label="Ordenar postulaciones" value={sort} onChange={event => onSort(event.target.value)}><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option></select></div>
     <section className="applicant-table" aria-label="Listado de practicantes"><div className="table-head"><span>Practicante</span><span>Carrera</span><span>Semestre</span><span>Postulación</span><span>Estado</span><span /></div>{loading ? <p className="table-empty">Cargando postulaciones…</p> : applicants.length === 0 ? <p className="table-empty">No encontramos postulaciones con esos filtros.</p> : applicants.map(applicant => <button className="table-row" onClick={() => onChoose(applicant)} key={applicant.id} aria-label={`Ver perfil de ${applicant.fullName}`}><span><strong>{applicant.fullName}</strong><small>{applicant.email}</small></span><span>{applicant.career}</span><span>{applicant.semester}.º</span><span>{formatDate(applicant.createdAt)}</span><span><Status status={applicant.status} /></span><span className="row-arrow">›</span></button>)}</section>
   </div>
 }

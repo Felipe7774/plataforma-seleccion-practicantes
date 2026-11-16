@@ -67,6 +67,37 @@ describe('App', () => {
     expect(screen.queryByRole('button', { name: /resumen/i })).toBeNull()
   })
 
+  it('applies every status filter, restores all records and searches by name', async () => {
+    const user = userEvent.setup()
+    vi.mocked(api.login).mockResolvedValue({ accessToken: 'jwt-for-test' })
+    vi.mocked(api.getMetrics).mockResolvedValue({ total: 3, byStatus: [], byCareer: [] })
+    vi.mocked(api.getApplicants).mockResolvedValue({ items: [], totalElements: 0, totalPages: 0, page: 0, size: 10 })
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /iniciar sesión admin/i }))
+    await user.type(screen.getByLabelText('Usuario'), 'analista')
+    await user.type(screen.getByLabelText('Contraseña'), 'secreto')
+    await user.click(screen.getByRole('button', { name: /^iniciar sesión →$/i }))
+    await screen.findByRole('heading', { name: /practicantes/i })
+
+    const statusFilter = screen.getByLabelText('Filtrar por estado')
+    await user.selectOptions(statusFilter, 'NOT_VIABLE')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'NOT_VIABLE' }))
+
+    await user.selectOptions(statusFilter, 'VIABLE')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'VIABLE' }))
+
+    await user.selectOptions(statusFilter, 'PENDING')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { status: 'PENDING' }))
+
+    await user.selectOptions(statusFilter, 'VIABLE')
+    await user.type(screen.getByLabelText('Buscar'), 'Laura')
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { q: 'Laura', status: 'VIABLE' }))
+
+    await user.click(screen.getByRole('button', { name: /todas las postulaciones/i }))
+    await waitFor(() => expect(api.getApplicants).toHaveBeenLastCalledWith('jwt-for-test', { q: 'Laura' }))
+  })
+
   it('loads a candidate detail and records a non-viable decision with a comment', async () => {
     const user = userEvent.setup()
     localStorage.setItem('accessToken', 'stored-token')
